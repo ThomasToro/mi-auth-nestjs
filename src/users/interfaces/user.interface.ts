@@ -15,6 +15,7 @@ import {
     refreshToken?: string;
     verificationCode?: string;
     verificationCodeExpires?: Date;
+    phoneNumber?:string;
     createdAt?: Date;
     updatedAt?: Date;
   }
@@ -37,5 +38,9 @@ import {
       id: string,
       changePasswordDto: ChangePasswordDto,
     ): Promise<void>;
-  }
+
+    resendSmsCode(phoneNumber:string):Promise<any>;
+   }
+    
+  
   

@@ -8,6 +8,7 @@ import { User as SchemaUser, UserDocument } from './schema/user.schema';
 import { ChangePasswordDto, CreateUserDto, LoginDto, RefreshTokenDto, UpdateUserDto, VerifyEmailDto } from './dto/user.dto';
 import { EmailService } from '../email/email.service';
 import { User, UserServiceInterface } from './interfaces/user.interface';
+import { SmsService } from 'src/sms/sms.service';
 
 @Injectable()
 export class UsersService implements UserServiceInterface {
@@ -16,6 +17,7 @@ export class UsersService implements UserServiceInterface {
     private jwtService: JwtService,
     private configService: ConfigService,
     private emailService: EmailService,
+    private smsService: SmsService
   ) {}
 
   private toUserInterface(userDoc: UserDocument): User {
@@ -26,6 +28,9 @@ export class UsersService implements UserServiceInterface {
     return userObj as User;
   }
 
+
+  
+  
   async create(createUserDto: CreateUserDto): Promise<User> {
     // Check if user already exists
     const existingUser = await this.userModel.findOne({ email: createUserDto.email }).exec();
@@ -91,7 +96,45 @@ export class UsersService implements UserServiceInterface {
     return { message: 'Email verified successfully' };
   }
 
-  async login(loginDto: LoginDto): Promise<{ accessToken: string; refreshToken: string; user: User }> {
+  
+
+  
+
+  //tiene un endpoint distinto , para verificar el sms
+  async verifyCode(phoneNumber: string, code: string): Promise<{ accessToken: string; refreshToken: string; user: User }> {
+    const user =await this.userModel.findOne({phoneNumber});
+
+    if (!user){
+      throw new Error ("The user you are trying to verify does not exist")
+    }
+
+    if (user.smsCode!==code){
+      throw new Error ("The entered does not match with the given code")
+    }
+
+    if (user.smsCodeExpires && new Date() > user.smsCodeExpires) {
+      throw new BadRequestException('Verification sms code expired, please request a new one');
+    }
+
+    // Update refresh token in database
+    const tokens = await this.getTokens(user.id, user.email, user.role);
+    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    user.refreshToken = hashedRefreshToken;
+    user.smsCodeExpires=undefined;
+    user.smsCode = undefined;
+
+    await user.save();
+
+    return {
+      ...tokens,
+      user: this.toUserInterface(user),
+    };
+
+
+  }
+
+
+  async login(loginDto: LoginDto): Promise<any> {
     const user = await this.userModel.findOne({ email: loginDto.email }).exec();
     
     if (!user) {
@@ -109,19 +152,41 @@ export class UsersService implements UserServiceInterface {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Generate tokens
-    // Access the _id as a property of the document
-    const tokens = await this.getTokens(user.id, user.email, user.role);
-    
-    // Update refresh token in database
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
-    user.refreshToken = hashedRefreshToken;
-    await user.save();
+    const sms = Math.floor(100000 + Math.random() * 900000).toString(); 
+    const smsExpires = new Date();
+    smsExpires.setMinutes(smsExpires.getMinutes() + 2); 
 
-    return {
-      ...tokens,
-      user: this.toUserInterface(user),
-    };
+
+    user.smsCode =sms;
+    user.smsCodeExpires=smsExpires;
+
+    const savedUser= user.save();
+    console.log(savedUser);
+    
+    this.smsService.sendOtp(user.phoneNumber,sms);
+    
+    
+    
+  }
+
+  async resendSmsCode(phoneNumber:string):Promise<any>{
+    const user = await this.userModel.findOne({ phoneNumber }).exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const sms = Math.floor(100000 + Math.random() * 900000).toString(); 
+    const smsExpires = new Date();
+    smsExpires.setMinutes(smsExpires.getMinutes() + 2); 
+
+    user.smsCode = sms;
+    user.smsCodeExpires = smsExpires;
+    await user.save();
+    this.smsService.sendOtp(user.phoneNumber, sms);
+
+    return { message: 'SMS code resent successfully' };
+    
   }
 
   // Implementing the missing methods

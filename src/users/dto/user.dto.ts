@@ -4,6 +4,7 @@ import {
     IsString,
     MinLength,
     IsOptional,
+    IsPhoneNumber,
   } from 'class-validator';
   
   export class CreateUserDto {
@@ -19,6 +20,15 @@ import {
     @IsString()
     @MinLength(6)
     password: string;
+
+    @IsNotEmpty()
+    @IsString()
+    @IsPhoneNumber()
+    phoneNumber: string;  //estamos agregardo en el dto el phone
+
+    @IsNotEmpty()
+    @IsString()
+    role: string;//agregamos el rol al dto NUEVO
   }
   
   export class UpdateUserDto {
@@ -34,6 +44,13 @@ import {
     @IsString()
     @MinLength(6)
     password?: string;
+
+    @IsOptional()
+    @IsString()
+    @IsPhoneNumber()
+    phoneNumber?: string;  //estamos agregardo en el dto el phone
+
+
   }
   
   export class LoginDto {

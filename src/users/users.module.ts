@@ -7,6 +7,7 @@ import { UsersController } from './users.controller';
 import { User, UserSchema } from './schema/user.schema';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { EmailModule } from '../email/email.module';
+import { SmsService } from 'src/sms/sms.service';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { EmailModule } from '../email/email.module';
     EmailModule,
   ],
   controllers: [UsersController],
-  providers: [UsersService, JwtStrategy],
+  providers: [UsersService, JwtStrategy, SmsService],
   exports: [UsersService],
 })
-export class UsersModule {}
+export class UsersModule {}  

@@ -17,7 +17,7 @@ export class User {
   @Prop({ default: false })
   isVerified: boolean;
 
-  @Prop({ default: 'user' })
+  @Prop({ default: 'editor' })
   role: string;
 
   @Prop({ type: String, required: false })
@@ -28,6 +28,17 @@ export class User {
 
   @Prop({ type: Date, required: false })
   verificationCodeExpires?: Date;
+
+
+  //match: /^\+\d{1,3}\d{7,}$/
+  @Prop({ type: String, required: true, unique: true}) //ponemos para que coincida con el formato adecuado
+  phoneNumber: string;
+
+  @Prop({type:String,required:false})
+  smsCode?:string;
+
+  @Prop({ type: Date, required: false })
+  smsCodeExpires?:Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
