@@ -5,7 +5,15 @@ import {
     MinLength,
     IsOptional,
     IsPhoneNumber,
+    IsEnum
   } from 'class-validator';
+
+  export enum UserRole { //sistema clave valor 
+    USER= 'user',
+    ADMIN= 'admin',
+    EDITOR= 'editor',
+  }
+  
   
   export class CreateUserDto {
     @IsNotEmpty()
@@ -26,9 +34,11 @@ import {
     @IsPhoneNumber()
     phoneNumber: string;  //estamos agregardo en el dto el phone
 
-    @IsNotEmpty()
-    @IsString()
-    role: string;//agregamos el rol al dto NUEVO
+    @IsOptional()
+    @IsEnum(UserRole,{message: 'Role must be user, admin or editor'})
+    role?: UserRole=UserRole.EDITOR; //opcional, por defecto es editor
+    //es un operador ternario, si no se pasa el rol, se asigna editor por default
+    //el campo es opcional desde la creacion en postman
   }
   
   export class UpdateUserDto {
@@ -46,9 +56,8 @@ import {
     password?: string;
 
     @IsOptional()
-    @IsString()
-    @IsPhoneNumber()
-    phoneNumber?: string;  //estamos agregardo en el dto el phone
+    @IsEnum(UserRole,{message: 'Role must be user, admin or editor'})
+    role?:UserRole; //opcional
 
 
   }
