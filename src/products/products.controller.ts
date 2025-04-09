@@ -36,10 +36,11 @@ export class ProductsController {
   }
 
   @CheckPolicies({ action: Action.Create, subject: 'Product' })
-  @Post()
-  create(@Body() createProductDto: CreateProductDto, @Request() req) {
-    return this.productsService.create(createProductDto, req.user.id);
-  }
+   @Post()
+   create(@Body() createProductDto: CreateProductDto, @Request() req) {
+     return this.productsService.create(createProductDto, req.user.id);
+   }
+   
 
   @CheckPolicies({ action: Action.Update, subject: 'Product', checkData: true })
   @Put(':id')
@@ -59,6 +60,8 @@ export class ProductsController {
     return this.productsService.update(id, updateProductDto);
   }
 
+
+  //POR IMPLEMENTAR EN LAS CATEGORÍAS
   @CheckPolicies({ action: Action.Delete, subject: 'Product', checkData: true })
   @Delete(':id')
   async delete(@Param('id') id: string, @Request() req) {

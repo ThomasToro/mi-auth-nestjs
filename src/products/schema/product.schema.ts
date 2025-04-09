@@ -18,6 +18,9 @@ export class Product {
     @Prop({default: true})
     isActive: boolean;
 
+    @Prop({type: MongooseSchema.Types.ObjectId, ref: 'Category'})
+    category: string;  //agregamos el id de la categoria al schema 
+
     @Prop({type:MongooseSchema.Types.ObjectId, ref: 'User'})
     createdBy: string;
 }

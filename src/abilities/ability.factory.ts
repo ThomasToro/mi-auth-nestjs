@@ -58,6 +58,26 @@ export class AbilityFactory {
         subject: 'Product',
         conditions: { createdBy: userId },
       });
+
+      // User can read their own categories
+      rules.push({
+        action: Action.Create,
+        subject: 'Category',
+      });
+
+      // User update his categories
+      rules.push({
+        action: Action.Update,
+        subject: 'Category',
+        conditions: { createdBy: userId },
+      });
+
+      // User delete his categories
+      rules.push({
+        action: Action.Delete,
+        subject: 'Category',
+        conditions: { createdBy: userId },
+      });
     }
 
     // Admin abilities

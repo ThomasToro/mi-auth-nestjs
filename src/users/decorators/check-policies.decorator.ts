@@ -1,7 +1,7 @@
 import { SetMetadata } from "@nestjs/common";
 import { Action } from "../../abilities/ability.factory";
 
-export interface PolicyHandler{
+export interface PolicyHandler{ //definimos un decorador llamado checkpolicies
     action: Action;//quiero crear/post
     subject: string;//sobre qué entidad ejerceré la acción-entity tarea o product/products
     checkData?: boolean;

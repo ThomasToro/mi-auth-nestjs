@@ -13,6 +13,10 @@ export class CreateProductDto {
   @IsNumber()
   price: number;
 
+  @IsNotEmpty()
+  @IsString()
+  category: string; //el id de la categoria
+
   @IsOptional()
   @IsBoolean()
   isActive: boolean;
